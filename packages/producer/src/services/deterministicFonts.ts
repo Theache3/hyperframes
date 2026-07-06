@@ -709,7 +709,7 @@ async function ensureWoff2DataUri(
 
   const woff2What = `Google Fonts woff2 (${weight}/${style})` as const;
   try {
-    const fontRes = await options.fetchImpl(woff2Url);
+    const fontRes = await options.fetchImpl(woff2Url, { signal: AbortSignal.timeout(15_000) });
     if (!fontRes.ok) {
       if (fontRes.status >= 500 && options.failClosedFontFetch) {
         throw fontFetchError(familyName, woff2Url, woff2What, { status: fontRes.status });
@@ -744,6 +744,7 @@ async function fetchGoogleFont(
   try {
     const res = await options.fetchImpl(url, {
       headers: { "User-Agent": WOFF2_USER_AGENT },
+      signal: AbortSignal.timeout(15_000),
     });
     if (!res.ok) {
       // 4xx is a *deterministic* answer from Google Fonts that this

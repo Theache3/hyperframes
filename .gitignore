@@ -108,6 +108,10 @@ skills/hyperframes-contrast/
 
 # Capture outputs
 captures/
+
+# Local scratch directory — captured sites, narration, generated MP4s.
+# Anything we want to keep gets promoted out of dev/ explicitly.
+dev/
 # Legacy test captures at repo root (use captures/ instead)
 *-capture/
 *-demo/
@@ -136,8 +140,13 @@ test-runs/
 test-outputs/
 
 # Claude Code worktrees + superpowers docs
-.claude/worktrees/
-.claude/
+#
+# Git can't re-include a file whose parent directory is itself excluded, so
+# this ignores .claude/'s contents one level at a time (`.claude/*`) rather
+# than the directory as a unit — that's what lets the negation below work.
+.claude/*
+# ...except the project's own tracked hook config.
+!.claude/settings.json
 docs/superpowers/
 .worktrees
 hyperframes-bench/
