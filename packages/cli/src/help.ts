@@ -74,7 +74,7 @@ const GROUPS: Group[] = [
         "transcribe",
         "Transcribe audio/video to word-level timestamps, or import an existing transcript",
       ],
-      ["tts", "Generate speech audio from text using a local AI model (Kokoro-82M)"],
+      ["tts", "Generate speech audio from text — local AI (Kokoro-82M) or ElevenLabs cloud"],
       ["remove-background", "Remove background from a video or image to produce transparent media"],
     ],
   },

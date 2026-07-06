@@ -57,7 +57,7 @@ Credential resolution, full key priority, and the local-dependency list are in `
 | 2     | ElevenLabs                    | `$ELEVENLABS_API_KEY` set                    | No — chain `transcribe` after                                    |
 | 3     | Kokoro-82M (local, 54 voices) | always (no key required)                     | No — chain `transcribe` after                                    |
 
-> The published `hyperframes tts` CLI is often the local-only build (its `--help` says "Kokoro-82M", no `--provider`/`--words`) and silently falls back to Kokoro even with `$HEYGEN_API_KEY` set. That is why the engine's HeyGen path is the self-contained `scripts/heygen-tts.mjs` (REST), NOT the CLI; the CLI is used only for the Kokoro path. See `references/tts.md`.
+> The `hyperframes tts` CLI supports `--provider elevenlabs` directly (request stitching, loudness normalization, reproducible seeds — see its `--help`), but has no HeyGen path. That is why the engine's HeyGen path is the self-contained `scripts/heygen-tts.mjs` (REST), NOT the CLI; the CLI is used for the Kokoro and ElevenLabs paths. See `references/tts.md`.
 
 **BGM & SFX** — by default **retrieved** from the HeyGen audio library (`/v3/audio/sounds`), same credential as HeyGen TTS, with the no-credential fallback from the switch above:
 

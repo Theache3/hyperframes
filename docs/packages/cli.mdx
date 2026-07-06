@@ -312,9 +312,11 @@ Word-level transcripts (whisper output) are grouped into readable caption cues o
 
     ### `tts`
 
-    Generate speech audio from text using a local AI model (Kokoro-82M). No API key required — runs entirely on-device.
+    Generate speech audio from text. Two providers: local Kokoro-82M (default — no API key, on-device) or cloud ElevenLabs (`--provider elevenlabs`) for launch-grade quality with automatic request stitching and loudness normalization.
 
     ```bash
+    # ── Kokoro (default, local) ───────────────────────────────────────
+
     # Generate speech from text
     npx hyperframes tts "Welcome to HyperFrames"
 
@@ -338,23 +340,63 @@ Word-level transcripts (whisper output) are grouped into readable caption cues o
 
     # List available voices
     npx hyperframes tts --list
+
+    # ── ElevenLabs (cloud, launch-grade) ──────────────────────────────
+
+    # Generate full narration with stitching + loudness normalization
+    export ELEVENLABS_API_KEY=sk_...
+    npx hyperframes tts narration.txt \
+      --provider elevenlabs \
+      --voice 21m00Tcm4TlvDq8ikWAM \
+      --seed 12345 \
+      --output narration.wav
+
+    # List voices visible to your API key
+    npx hyperframes tts --list --provider elevenlabs
     ```
 
     | Flag | Description |
     |------|-------------|
     | `--output, -o` | Output file path (default: `speech.wav` in current directory) |
-    | `--voice, -v` | Voice ID (run `--list` to see options) |
-    | `--speed, -s` | Speech speed multiplier (default: 1.0) |
-    | `--lang, -l` | Phonemizer locale (`en-us`, `en-gb`, `es`, `fr-fr`, `hi`, `it`, `pt-br`, `ja`, `zh`). When omitted, inferred from the voice ID prefix. |
+    | `--provider, -p` | `kokoro` (default) or `elevenlabs` |
+    | `--voice, -v` | Voice ID. Kokoro: run `--list` to see options. ElevenLabs: any `voice_id` from your account (default: Rachel). |
+    | `--speed, -s` | Speech speed multiplier (Kokoro only, default: 1.0) |
+    | `--lang, -l` | Phonemizer locale for Kokoro (`en-us`, `en-gb`, `es`, `fr-fr`, `hi`, `it`, `pt-br`, `ja`, `zh`). When omitted, inferred from the voice ID prefix. |
     | `--list` | List available voices and exit |
     | `--json` | Output result as JSON |
 
+    **ElevenLabs-only flags**:
+
+    | Flag | Description |
+    |------|-------------|
+    | `--api-key` | ElevenLabs API key (default: `$ELEVENLABS_API_KEY` env var) |
+    | `--model` | Model ID (default: `eleven_multilingual_v2`). Options: `eleven_multilingual_v2`, `eleven_turbo_v2_5`, `eleven_flash_v2_5`, `eleven_v3` |
+    | `--stability` | `voice_settings.stability` 0-1 (default: 0.45) |
+    | `--similarity` | `voice_settings.similarity_boost` 0-1 (default: 0.75) |
+    | `--style` | `voice_settings.style` 0-1 (default: 0) |
+    | `--no-speaker-boost` | Disable `use_speaker_boost` (default: enabled) |
+    | `--seed` | Integer seed for reproducibility. Same seed + text + settings = same audio. |
+    | `--stitch` | Stitching mode: `request-id` (default — highest quality), `text`, or `off` |
+    | `--chunk-chars` | Target characters per request chunk (default: 350) |
+    | `--no-normalize` | Disable the `apply_text_normalization=off` default (re-enables ElevenLabs's own normalization) |
+    | `--loudness` | Integrated loudness target in LUFS (default: -16). Pass `off` to skip normalization. |
+    | `--sample-rate` | Final WAV sample rate in Hz (default: 48000 — matches the render mixer) |
+    | `--mono` | Emit mono WAV instead of stereo (default: stereo) |
+
     <Tip>
-      Voice IDs encode the phonemizer language in their first letter (`a`=American, `b`=British, `e`=Spanish, `f`=French, `h`=Hindi, `i`=Italian, `j`=Japanese, `p`=Brazilian Portuguese, `z`=Mandarin). `--lang` is only needed when you want to override that — for example, giving English text a French phonemizer for a stylized accent.
+      Voice IDs in Kokoro encode the phonemizer language in their first letter (`a`=American, `b`=British, `e`=Spanish, `f`=French, `h`=Hindi, `i`=Italian, `j`=Japanese, `p`=Brazilian Portuguese, `z`=Mandarin). `--lang` is only needed when you want to override that — for example, giving English text a French phonemizer for a stylized accent.
     </Tip>
 
     <Tip>
       Combine `tts` with `transcribe` to generate narration and word-level timestamps for captions in a single workflow: generate the audio with `tts`, then transcribe the output with `transcribe` to get word-level timing.
+    </Tip>
+
+    <Tip>
+      **ElevenLabs stitching is the single largest quality lever for long-form narration.** The CLI splits the script into ~350-character chunks and passes `previous_request_ids` to each new request — so the model conditions on the actual audio of prior chunks and prosody flows naturally. Without stitching, every chunk "resets" the model's pacing. Leave `--stitch request-id` enabled unless debugging.
+    </Tip>
+
+    <Tip>
+      **Pin `--seed` once per project** when using ElevenLabs. The HyperFrames flow maps word-level transcript timestamps to beat `data-start`/`data-duration` — regenerating the audio without a fixed seed shifts word boundaries by milliseconds and desyncs every beat.
     </Tip>
 
     ### `remove-background`

@@ -32,7 +32,7 @@ These aren't toy examples. They're the same compositions HeyGen ships in public 
 
 - **Multi-composition projects.** Most launches are 4-8 sub-compositions wired into one root timeline — useful when your `npx hyperframes init --example` starter outgrows a single file.
 - **Real adapter mix.** GSAP timelines, Lottie animations, custom shaders, Three.js scenes, and CSS keyframes all coexisting in one render. See how the team [boots multiple adapters](/guides/gsap-animation) inside a single composition.
-- **Production-grade timing.** ElevenLabs VO + per-beat SFX + underscore mixed against frame-accurate motion. The storyboards describe the timing decisions; the source shows them executed.
+- **Production-grade timing.** ElevenLabs VO (generated via `hyperframes tts --provider elevenlabs` with request stitching and -16 LUFS normalization) + per-beat SFX + underscore mixed against frame-accurate motion. The storyboards describe the timing decisions; the source shows them executed.
 - **No proprietary plugins.** Everything renders with the same `hyperframes render` you have locally — there's no internal-only branch of the engine.
 
 ## Cloning
