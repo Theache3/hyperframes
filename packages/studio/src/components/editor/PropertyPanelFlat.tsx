@@ -445,7 +445,13 @@ export function PropertyPanelFlat({
       id: "audio-fx",
       title: "Audio FX",
       summary: audioFxSummary(element),
-      content: <AudioFxGroup element={element} onSetAttribute={onSetAttribute} />,
+      content: (
+        <AudioFxGroup
+          element={element}
+          onSetAttribute={onSetAttribute}
+          onSetAttributeLive={onSetAttributeLive}
+        />
+      ),
     });
   }
   if (sections.media) {
@@ -551,9 +557,11 @@ export function PropertyPanelFlat({
 function AudioFxGroup({
   element,
   onSetAttribute,
+  onSetAttributeLive,
 }: {
   element: DomEditSelection;
   onSetAttribute: (attr: string, value: string) => void | Promise<void>;
+  onSetAttributeLive: (attr: string, value: string | null) => void | Promise<void>;
 }) {
   const chain = ((): HfAudioFxChain => {
     const raw = element.dataAttributes?.["fx-chain"];
@@ -633,6 +641,11 @@ function AudioFxGroup({
       chain={chain}
       onChainChange={(next) =>
         onSetAttribute(HF_AUDIO_FX_ATTR, next.nodes.length ? serializeAudioFxChain(next) : "")
+      }
+      onChainPreview={(next) =>
+        // Live writes skip the preview refresh, so dragging a knob no longer
+        // reloads the composition and restarts playback on every pixel.
+        onSetAttributeLive(HF_AUDIO_FX_ATTR, next.nodes.length ? serializeAudioFxChain(next) : null)
       }
       carve={carve}
       onCarveChange={(next) =>
