@@ -24,6 +24,7 @@ import {
   normalizeCarveSettings,
   type HfCarveSettings,
 } from "@hyperframes/core/audio-carve";
+import { audioFxSummary } from "./audioFxSummary";
 import { FlatMediaSection } from "./propertyPanelFlatMediaSection";
 import type { DomEditSelection } from "./domEditing";
 import { FxSection, type AudioTrackOption } from "./propertyPanelFxSection";
@@ -534,24 +535,6 @@ export function PropertyPanelFlat({
       </div>
     </DesignPanelInputProvider>
   );
-}
-
-/** Chain length at a glance, so the collapsed group says whether anything is on. */
-function audioFxSummary(element: DomEditSelection): string {
-  const raw = element.dataAttributes?.["fx-chain"];
-  const carve = element.dataAttributes?.["fx-carve"];
-  let count = 0;
-  if (raw) {
-    try {
-      count = parseAudioFxChain(raw).nodes.filter((n) => n.enabled !== false).length;
-    } catch {
-      return "unreadable";
-    }
-  }
-  const parts: string[] = [];
-  if (count > 0) parts.push(`${count} effect${count === 1 ? "" : "s"}`);
-  if (carve) parts.push("carve");
-  return parts.length > 0 ? parts.join(" + ") : "none";
 }
 
 /**
