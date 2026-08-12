@@ -24,6 +24,7 @@ import {
   normalizeCarveSettings,
   type HfCarveSettings,
 } from "@hyperframes/core/audio-carve";
+import { isCanaryEnabled } from "../../telemetry/canary";
 import { audioFxSummary } from "./audioFxSummary";
 import { FlatMediaSection } from "./propertyPanelFlatMediaSection";
 import type { DomEditSelection } from "./domEditing";
@@ -434,7 +435,10 @@ export function PropertyPanelFlat({
       });
     }
   }
-  if (sections.audioFx) {
+  // Behind `audio-fx-rack`, at 0%. Gates the AUTHORING surface only: the runtime
+  // and render still honour a `data-fx-chain` already on an element, so a
+  // composition written through the skill does not go silently dry off-cohort.
+  if (sections.audioFx && isCanaryEnabled("audio-fx-rack")) {
     groups.push({
       id: "audio-fx",
       title: "Audio FX",
